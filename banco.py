@@ -2,15 +2,16 @@ from conta import Conta
 import json
 contas = {}
 
-
 with open ('dados.json') as arquivo:
     dados = json.load(arquivo)
 for nome, info in dados.items():
-    contas[nome] = Conta(
+    conta = Conta(
         info['nome'],
         info['saldo'],
         info['senha'],
     )
+    conta.historico = info.get('historico', []) 
+    contas[nome] = conta
 
 def salvar_dados():
     dados = {}
@@ -80,14 +81,17 @@ def login():
             print(f'Login efetuado em {contas[nome].nome.title()} com sucesso. Bem vindo!')
             conta = contas[nome]
             menu_conta(conta)
-            break
+            return
 
 def validar_senha(conta):
-    senha = input('Digite sua senha: ').strip().lower()
+    senha = input('\nDigite sua senha: ').strip().lower()
+    if senha == 'f':
+        return 'f'
     if senha != conta.senha:
         print('Senha inválida.')
         return False
-    return True
+    else:
+        return True
 
 def pedir_valor(mensagem):
     while True:
@@ -107,7 +111,9 @@ def menu_conta(conta):
         '2: Depositar\n' \
         '3: Sacar\n' \
         '4: Transferir\n' \
-        '5: Logout\n' \
+        '5: Histórico\n' \
+        '6: Extrato\n' \
+        '7: Logout' \
         '')
 
         escolha = input('').strip().lower()
@@ -132,8 +138,14 @@ def menu_conta(conta):
 
         elif escolha == '4':
             while True:
-                if validar_senha(conta):
+                resultado = validar_senha(conta)
+                if resultado == 'f':
                     break
+                if resultado:
+                    break
+            if resultado == 'f':
+                continue
+
             while True:
                 destinatario = input('À quem deseja enviar ou F para voltar: ').strip().lower()
                 if destinatario == 'f':
@@ -147,6 +159,12 @@ def menu_conta(conta):
                 print('Destinatário inválido.')
                 continue
         elif escolha == '5':
+            conta.ver_historico()
+
+        elif escolha == '6':
+            conta.ver_extrato()
+
+        elif escolha == '7':
             print('Logout realizado.')
             break
         
