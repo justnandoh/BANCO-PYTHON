@@ -42,11 +42,13 @@ class Conta:
             return
         if valor > self.saldo:
             print(f'Saldo insuficiente para transferência.')
-            
+            return
         self.saldo -= valor
-        destinatario.depositar(valor)
+        destinatario.saldo += valor
+
         print(f'Valor de R${valor:.2f} transferido para {destinatario.nome.title()}.')
         self.historico.append(f'Transferência: -{valor:g}')
+        destinatario.historico.append(f'Transferência recebida: -{valor:g}')
 
     def ver_historico(self):
         if not self.historico:
